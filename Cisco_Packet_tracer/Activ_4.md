@@ -27,16 +27,25 @@ Ingresa el comando show running-config.
 
 ### Responde las siguientes preguntas:
   
-  a) ¿Cuántas interfaces Fast Ethernet tiene el switch?
-  
-  b) ¿Cuántas interfaces Gigabit Ethernet tiene el switch?
-  
-  c) ¿Cuál es el rango de valores que se muestra para las líneas vty?
-  
-  d) ¿Qué comando muestra el contenido actual de la memoria de acceso aleatorio no volátil (NVRAM)? show star
+  **a)**¿Cuántas interfaces Fast Ethernet tiene el switch?
 
-  e) ¿Por qué el switch responde con "startup-config no está presente"?
+En total tenemos 24 Inteface Fast Ethernet( son puertos en un switch que admiten velocidades de hasta 100 Mbps),los 24 puertos nos permite admitir conexiones de hasta 100 Mbps(megabit por segundo) cada uno. Estos puertos son esenciales para las capacidades de transferencia de datos en una red local.
 
+**b)** ¿Cuántas interfaces Gigabit Ethernet tiene el switch?
+
+Presenta dos gigabits ethernet(son puertos en un switch que admiten velocidades de hasta 1 Gbps o más).
+
+**c)** ¿Cuál es el rango de valores que se muestra para las líneas vty?
+
+El rango de lineas vty son de 0, 4 a 5 al 15.(son las líneas de terminal virtual del enrutador, utilizadas exclusivamente para controlar las conexiones Telnet entrantes. )Estas líneas permiten administrar el dispositivo de forma remota.
+
+**d)** ¿Qué comando muestra el contenido actual de la memoria de acceso aleatorio no volátil (NVRAM)? show star
+
+El comando seria: show startup-config. Proporciona la configuración almacenada en la NVRAM, que incluye la configuración inicial del dispositivo.
+
+**e)** ¿Por qué el switch responde con "startup-config no está presente"?
+
+Aparece así porque no hemos guardado nada en la memoria, todo sigue estando en la memoria ram, y esto es prueba cuando queremos guardar algo, está todavía en la Memoria RAM.
 
 # 2. Crea una configuración básica del switch
 ## Asigna un nombre a un switch.
