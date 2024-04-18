@@ -20,6 +20,11 @@
 
 #### Ahora que anotaste los protocolos que usan el enviar y leer mensajes de texto, ¿crees que estos protocolos serían los mismos si estuviera escribiendo a amigos que si estuviera escribiendo a sus padres o profesores? Explica tu respuesta.
 
+Ademas de como esta expresado el mensaje, tiene ser si puede ser un mensaje privado. al saber sa los protocolos  puede haber un conflicto de al enviado del mensaje.
+
 #### ¿Cuáles crees que serían las consecuencias si no hubiera estándares de protocolo acordados para los diferentes métodos de comunicación?
 
+La seguridad de de los datos o mensajes seria afectadas, Apareceria una probabilidad de problemas de contabilidad  entre diferencia aplicacion o servicios de mensajes. 
 #### Comparte las reglas de protocolo con tus compañeros de equipo. ¿Hay diferencias entre tus protocolos y los de ellos? Si es así, ¿podrían estas diferencias producir malentendidos de los mensajes?
+
+Puede ser dependiendo la gestion adecuada a los correo, o prrivacidad  que da los destinatarios, ando a lugar los casos de mensajes. Puede hacer una jerarquia de los mensajes dados. 
