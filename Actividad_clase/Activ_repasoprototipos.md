@@ -17,3 +17,9 @@
 |Requisitos de confirmación o acuse de recibo|Para saber el recibimiento del mensaje,confirmar la entrega, para luego pasar a confirmar verbal o esrita al destinatario.|
 
 ### Preguntas: 
+
+#### Ahora que anotaste los protocolos que usan el enviar y leer mensajes de texto, ¿crees que estos protocolos serían los mismos si estuviera escribiendo a amigos que si estuviera escribiendo a sus padres o profesores? Explica tu respuesta.
+
+#### ¿Cuáles crees que serían las consecuencias si no hubiera estándares de protocolo acordados para los diferentes métodos de comunicación?
+
+#### Comparte las reglas de protocolo con tus compañeros de equipo. ¿Hay diferencias entre tus protocolos y los de ellos? Si es así, ¿podrían estas diferencias producir malentendidos de los mensajes?
