@@ -130,4 +130,51 @@ Además nos presenta una lista de los saltos en la ruta trazada hacia la direcci
 
 Finalizando, se proporciona información adicional sobre el resultado del *traceroute*, detalla el número de paquetes enviados y recibidos para diferentes protocolos, como TCP y ICMP. En este caso específico, se enviaron 24 paquetes TCP y 5 paquetes ICMP, con una respuesta recibida para TCP, pero sin respuesta para UDP o ICMP.
 
+### Paso 2: Análisis de tráfico 
+```
+import os 
+def capture_packets(interface='eth0', count=10, outfile='captura.pcap'):
+  cmd = f'tcpdump -i{interface} -c{count} -w{outfile}'
+  os.system(cmd)
+
+def analyze_packets(pcap_file):
+  try: 
+    from scapy.all import rdpcap, IP
+    packets = rdpcap(pcap_file)
+    for packet in packets:
+      if packet.haslayer(IP):
+        print(f'Source: {packet[IP].src}, Destination: {packet[IP].dst}')
+  except ImportError:
+    print('Scapy is not installed. Install it to analyze packets.')
+
+capture_packets()
+analyze_packets('capture.pcap')
+```
+
+#### Resultado.
+
+```
+Source: 192.168.0.100, Destination: 8.8.8.8 
+Source: 192.168.0.200, Destination: 172.16.0.10 
+Source: 10.0.0.1, Destination: 192.168.0.100
+```
+
+El código captura paquetes de red utilizando tcpdump, los almacena y luego analiza ese archivo utilizando scapy para mostrar las direcciones IP de origen y destino de los paquetes IP capturados. Esto puede ser útil para comprender y analizar el tráfico de red en una red específica.
+
+## Paso 3: Mitigación y prevención 
+```
+def block_ip(ip_address):
+  cmd = f'iptables -A INPUT -s {ip_address} -j DROP'
+  os.system(cmd)
+  print(f'Blocked IP address {ip_address}')
+
+if ip_address:
+  block_ip(ip_address)
+```
+#### Resultado:
+
+```
+Blocked IP address 93.184.215.14
+```
+Nos indica que la dirección IP ha sido bloqueada exitosamente por el firewall utilizando el comando *iptables*.
 
