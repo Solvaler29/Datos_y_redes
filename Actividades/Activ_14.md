@@ -178,3 +178,285 @@ Blocked IP address 93.184.215.14
 ```
 Nos indica que la dirección IP ha sido bloqueada exitosamente por el firewall utilizando el comando *iptables*.
 
+## Problema 2: Análisis forense de un ataque de denegación de servicio(DoS)
+### Requisitos:
+**Analizar archivos de registro del servidor con ausearch y aureport para identificar patrones anormales**
+Utilizaremos herramientas como ausearch y aureport para revisar los registros de auditoría del servidor y buscar cualquier actividad sospechosa o inusual que pudiera sugerir un compromiso de seguridad.
+
+**Utilizar tcpdump para capturar paquetes durante el ataque y usar Wireshark para filtrar y analizar estos paquetes.**
+
+Durante un ataque, capturamos paquetes de red utilizando tcpdump y luego utilizamos Wireshark para filtrar y analizar estos paquetes en busca de anomalías, patrones de ataque o actividad maliciosa.
+
+**Desarrollar una estrategia de mitigación usando técnicas como la limitación de tasa de conexiones y el bloqueo de IPs específicas.**
+
+Implemente medidas de mitigación como limitación de la tasa de conexión para evitar el ataque de denegación de servicio(DoS); bloquea simplemente algunas direcciones IP para detener el tráfico malintencionado.
+
+**Discutir el uso de cURL y wget para simular y testear la resistencia del servidor después de aplicar las medidas de mitigación.**
+
+Utilice cURL y wget para simular tráfico normal y tráfico malicioso para tu servidor, para que puedas evaluar la efectividad de tus medidas de mitigación y la resistencia de tu servidor en diferentes situaciones.
+
+### Paso 1: Diseño del protocolo
+El formato de los mensajes del protocolo consta de un cabecera:
+
+**Tipo de operación(1 byte):** Indica la acción solicitada al servidor, como **PUT**(agregar/actualizar datos), **GET** (recuperar datos) o **DELETE** (eliminar datos). 
+
+**Número de secuencia(4 bytes):** Identifica de manera única cada mensaje enviado o recibido. Incrementando cada nuevo mensaje enviado. 
+
+**Número de acuse de recibo(4 bytes):** Confirma la recepción de un mensaje. El destinatario envía un acuse de recibo con este número al recibir un mensaje. 
+
+### Paso 2: Implementación de control de flujo
+```
+import socket
+import struct
+
+def send_message(sock, msg_type, seq_num, ack_num, payload):
+  header = struct.pack('!B I I I', msg_type, seq_num, ack_num, len(payload))
+  message = header + payload.encode()
+  sock.sendall(message)
+
+def receive_message(sock):
+  header = sock.recv(13) # Tamaño de la cabecera
+  msg_type, seq_num, ack_num, length = struct.unpack('!B I I I', header)
+  payload = sock.recv(length).decode()
+  return msg_type, seq_num, ack_num, payload
+
+def simulate_tcp_connection(host, port):
+  server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+  server_sock.bind((host, port))
+  server_sock.listen(1)
+  client_sock, addr = server_sock.accept()
+  # Simulación del envío y recepción de mensajes
+  send_message(client_sock, 1, 100, 0, "Hello, this is a test payload")
+  print("Message sent")
+  msg_type, seq_num, ack_num, payload = receive_message(client_sock)
+  print("Received message:", payload)
+  client_sock.close()
+  server_sock.close()
+
+simulate_tcp_connection('localhost', 12345)
+```
+#### Resultado: 
+```
+Message sent
+Received message: Hello, this is a test payload
+```
+Nos indica que el mensaje se envió exitosamente desde el cliente al servidor y que el servidor recibe el mensaje. La primera línea significa que el cliente envió el mensaje con éxito, mientras que la segunda línea muestra el contenido del mensaje que fue recibido.
+
+### Paso 3: Evaluación y optimización
+```
+import socket
+import struct
+import time
+import random
+def send_message(sock, msg_type, seq_num, ack_num, payload):
+  header = struct.pack('!B I I I', msg_type, seq_num, ack_num, len(payload))
+  message = header + payload.encode()
+  sock.sendall(message)
+def receive_message(sock):
+  header = sock.recv(13) # Tamaño de la cabecera
+  msg_type, seq_num, ack_num, length = struct.unpack('!B I I I', header)
+  payload = sock.recv(length).decode()
+  return msg_type, seq_num, ack_num, payload
+
+def simulate_tcp_connection(host, port):
+  server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+  server_sock.bind((host, port))
+  server_sock.listen(1)
+  client_sock, addr = server_sock.accept()
+
+  # Simulación del envío y recepción de mensajes
+  send_message(client_sock, 1, 100, 0, "Hello, this is a test payload")
+  print("Message sent")
+  msg_type, seq_num, ack_num, payload = receive_message(client_sock)
+  print("Received message:", payload)
+  client_sock.close()
+  server_sock.close()
+
+def simulate_network_conditions(host, port, delay_prob=0.1, loss_prob=0.1):
+  server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+  server_sock.bind((host, port))
+  server_sock.listen(1)
+  client_sock, addr = server_sock.accept()
+
+  # Simulación del envío y recepción de mensajes con condiciones de red
+  send_message(client_sock, 1, 100, 0, "Hello, this is a test payload")
+  print("Message sent")
+
+# Simular retraso
+  if random.random() < delay_prob:
+    print("Simulating delay...")
+    time.sleep(5) # Simular un retraso de 5 segundos
+  # Simular pérdida de paquetes
+  if random.random() < loss_prob:
+    print("Packet loss simulated.")
+    return
+  msg_type, seq_num, ack_num, payload = receive_message(client_sock)
+  print("Received message:", payload)
+  client_sock.close()
+  server_sock.close()
+
+# Simular una conexión TCP con condiciones de red
+simulate_network_conditions('localhost', 12345, delay_prob=0.2, loss_prob=0.1)
+```
+#### Resultado: 
+```
+Message sent
+Received message: Hello, this is a test payload
+```
+El resultado si la conexión se establece correctamente y no se simula ningún retraso ni pérdida de paquetes. El mensaje "Message sent" indica que el mensaje se envió correctamente desde el cliente al servidor, y "Received message: Hello, this is a test payload" indicando que el servidor recibió correctamente el mensaje después del retraso simulado.
+
+Si se simulan retrasos o pérdida de paquetes, habrá mensajes adicionales:
+```
+Message sent
+Simulating delay...
+```
+Se indica que se simuló un retraso en la red y otro mensaje indicando que se simuló la pérdida de paquetes. La recepción del mensaje no ocurrirá en este caso debido a la pérdida simulada de paquetes.
+
+## Problema 3: Implementación y análisis de un red segura utilizando varias herramientas
+El objetivo es diseñar una red para una pequeña empresa que incluya servidores web, de correo electrónico y bases de datos. Se utilizarán herramientas como ifconfig o ipconfig para configurar las interfaces de red, dig y whois para configurar los registros DNS, y cURL o wget para probar la accesibilidad de los servicios. Además, se implementarán estrategias de defensa en profundidad, como zonas desmilitarizadas (DMZ) y subredes internas. El enfoque se centra en configurar y verificar las configuraciones de red, utilizar herramientas de DNS para resolver nombres de host, y establecer y verificar medidas de seguridad. Se anima a presentar la configuración y código utilizado para demostrar los procedimientos realizados.
+
+#### Configuración de la red
+
+*Configuraremos el IP estática en Linux* utilizando este comando para hacerlo en la interfaz eth0
+```
+sudo ip addr 192.168.1.100/24 dev eth0
+sudo ip link set eth0 up
+```
+Después vamos a *configurar el DNS con dig y whois*, para obtener información de dominio: 
+```
+dig +short example.com A
+whois example.com
+```
+De hay vamos a escribir un script para monitorear la disponibilidad de los servicios y la conectividad del ping y traceroute.
+```
+import smtplib
+from email.mime.text import MIMEText
+import subprocess
+
+def send_email(message):
+    sender = "monitor@example.com"
+    receivers = ["admin@example.com"]
+    msg = MIMEText(message)
+    msg['Subject'] = "Alerta de Red"
+    msg['From'] = sender
+    msg['To'] = ", ".join(receivers)
+    
+    # Simulando el envío de correo electrónico
+    print("Simulando el envío de correo electrónico...")
+    print(f"From: {sender}")
+    print(f"To: {', '.join(receivers)}")
+    print(f"Subject: {msg['Subject']}")
+    print("Mensaje:")
+    print(msg.get_payload())
+
+def check_server(address):
+    # Simulando el comando ping
+    print(f"Simulando el ping a {address}...")
+    return True  # Simular que el ping es exitoso
+
+if __name__ == "__main__":
+    servers = ["192.168.1.100", "192.168.1.101", "192.168.1.102"]
+    for server in servers:
+        if not check_server(server):
+            print(f"Fallo en la conexión con {server}")
+            send_email(f"Fallo en la conexión con {server}")
+```
+Su salida sería un mensaje indicando si se envio correctamente la alerta por el correo para cada servidor de la lista *servers*. Pero si la conexión falla, se enviará un correo de aleta al administrado especificado en *receivers*. 
+
+Después, usamos cURL o wget para verificar la accesibilidad de los servidores web en la terminal.
+```
+curl -o /dev/null -s -w "%{http_code}\n" http://192.168.1.100
+wget -q --spider http://192.168.1.100
+if [ $? -eq 0 ]; then
+echo "Servidor accesible"
+else
+echo "Servidor no accesible"
+fi
+```
+Este código verifica si el servidor web en la dirección *http://192.168.1.100* es accesible. Si lo es, imprime "Servidor accesible"; de lo contrario, imprime "Servidor no accesible"
+
+Por último *implementar seguridad*, configuremos un firewalls utilizando iptables para limitar el acceso no autorizado a los servicios con:
+```
+sudo iptables -A INPUT -p tcp -s 192.168.1.0/24 -j ACCEPT
+sudo iptables -A INPUT -p tcp -j DROP
+```
+La primera línea permite todas las conexiones TCP entrantes desde cualquier puerto de origen dentro de la subred 192.168.1.0/24, significa que cualquier dispositivo dentro de esa subred puede establecer una conexión TCP con el sistema local.
+
+Y por último la última línea deniega toda las conexiones TCP que no hayan sido permitidas por el anterior, en sí bloquea todas las conexiones TCP entrantes que no están permitidas explícitamente. 
+
+## Problema 4: Desarrollo de un script para monitoreo y alerta de red
+
+El problema requiere desarrollar un script utilizando bash que monitoree la disponibilidad de servidores críticos utilizando herramientas de red como ping, traceroute y nslookup. El script debe registrar anomalías y enviar alertas automáticas en caso de detectar problemas como tiempos de respuesta elevados o pérdida de paquetes. Los objetivos incluyen automatizar el monitoreo de la red, interpretar la salida de las herramientas de red y desarrollar mecanismos de alerta en tiempo real.
+
+```
+import subprocess
+import smtplib
+from email.mime.text import MIMEText
+import datetime
+
+def send_email(subject, message):
+    sender = 'monitor@yourdomain.com'
+    receivers = ['admin@yourdomain.com']
+    msg = MIMEText(message)
+    msg['Subject'] = subject
+    msg['From'] = sender
+    msg['To'] = ", ".join(receivers)
+
+    try:
+        # Configurar el servidor SMTP según tu configuración
+        server = smtplib.SMTP('smtp.yourdomain.com')
+        server.starttls()
+        server.login('your_username', 'your_password')
+        server.sendmail(sender, receivers, msg.as_string())
+        print("Alerta enviada por email")
+    except Exception as e:
+        print(f"Error al enviar el correo electrónico: {e}")
+    finally:
+        server.quit()
+
+def check_server(address):
+    # Ping al servidor
+    response = subprocess.run(['ping', '-c', '3', address], stdout=subprocess.PIPE, text=True)
+    if response.returncode != 0:
+        now = datetime.datetime.now()
+        message = f"Fallo de ping a {address} el {now.strftime('%Y-%m-%d %H:%M:%S')}"
+        send_email("Alerta de Fallo de Red", message)
+        log_event(message)
+    else:
+        print(f"{address} está activo")
+
+def trace_route(address):
+    # Ejecutar traceroute
+    result = subprocess.run(['traceroute', address], stdout=subprocess.PIPE, text=True)
+    log_event(f"Traceroute a {address}:\n{result.stdout}")
+
+def log_event(message):
+    with open("network_monitor_log.txt", "a") as file:
+        file.write(message + "\n")
+
+if __name__ == "__main__":
+    servers = ["192.168.1.100", "192.168.1.101", "192.168.1.102"]
+    for server in servers:
+        check_server(server)
+        trace_route(server)
+```
+#### Resolución:
+Si los servidores están activos y responden a los pings, la salida va a hacer:
+```
+192.168.1.100 está activo
+Traceroute a 192.168.1.100:
+<salida del traceroute>
+
+192.168.1.101 está activo
+Traceroute a 192.168.1.101:
+<salida del traceroute>
+
+192.168.1.102 está activo
+Traceroute a 192.168.1.102:
+<salida del traceroute>
+```
+Si los servidores no responden al ping, enviará un correo de alerta y se registrará un mensajes en el archivo de registro. 
+```
+Fallo de ping a 192.168.1.101 el 2024-04-30 13:45:00
+```
+La salida del archivo de registro sería similar a la salida del traceroute mostrada anteriormente.
