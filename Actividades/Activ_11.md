@@ -1,4 +1,5 @@
-## Problema 1: Diseño de red segura💻​ 
+## Problema 1: Diseño de red segura
+
 ### Escenario: 
 Una empresa necesita diseñar una red segura que conecte tres sucursales
 ubicadas en diferentes ciudades utilizando tecnología WAN y LAN. La empresa maneja
