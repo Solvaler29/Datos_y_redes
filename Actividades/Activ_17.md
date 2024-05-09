@@ -17,7 +17,7 @@ Crea una función que procese y filtre datos de manera eficiente para simular el
 Conceptos: Flooding, MAC Table, Ethernet
 Desarrolla una función que simule el proceso de "flooding" utilizado en switches Ethernet para distribuir paquetes cuando la dirección de destino no está en la tabla MAC. La función debe manejar la adición de direcciones desconocidas a la tabla MAC.
 Implementar una función que simule la recepción de frames y su distribución basada en la tabla MAC.
-
+https://colab.research.google.com/drive/1q9S83Ayq0pC23DQDQAQ5gejcrzH1VIcS?usp=sharing
 ´´´´
 
 
