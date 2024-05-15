@@ -20,6 +20,28 @@ Implementar una función que simule la recepción de frames y su distribución b
 
 link: https://colab.research.google.com/drive/1q9S83Ayq0pC23DQDQAQ5gejcrzH1VIcS?usp=sharing
 
+````python 
+class Switch:
+    def __init__(self):
+        self.mac_table = {}  # Tabla MAC vacía
+
+    def receive_frame(self, source_mac, dest_mac, frame):
+        if dest_mac in self.mac_table:
+            port = self.mac_table[dest_mac]
+            print(f"Enviando frame a puerto {port}: {frame}")
+        else:
+            print("Dirección de destino desconocida, realizando flooding.")
+            for port in range(1, 5):
+                if port != source_mac:
+                    print(f"Enviando frame desde el puerto {source_mac} a {port}")
+            self.mac_table[dest_mac] = source_mac
+
+# Ejemplo de uso
+switch = Switch()
+switch.receive_frame(1, 2, "Datos del frame")
+switch.receive_frame(2, 1, "Datos del frame")
+````
+
 ````
 puertos = [1,2,3,4]
 frames = [
