@@ -134,4 +134,84 @@ def demo():
 if __name__ == "__main__":
     demo()
 ````
+###  Ejercicios adicionales
+Modifica las funciones update_cache y query_dns para soportar diferentes tipos de registros DNS. Asegúrate de que tu caché pueda almacenar múltiples tipos de registros para un mismo dominio y que la función query_dns busque correctamente según el tipo de registro solicitado.
 
+Implementa una función external_dns_query que simule de manera más realista una consulta DNS externa. Por ejemplo, podría seleccionar de un conjunto predefinido de respuestas basadas en el dominio y el tipo de registro.
+
+Implementa una manera de que esta función se ejecute automáticamente en intervalos regulares. Considera el uso de threading o programación asíncrona para manejar esta tarea en el fondo sin bloquear las consultas principales.
+
+````python
+import time
+import threading
+import random
+
+class DNSCache:
+    def __init__(self):
+        self.cache = {}
+
+    def query_dns(self, domain, record_type='A'):
+        if domain in self.cache and record_type in self.cache[domain]:
+            record = self.cache[domain][record_type]
+            if record['expiration_time'] > time.time():
+                print(f"Cache hit: {domain} [{record_type}] -> {record['value']}")
+                return record['value']
+            else:
+                del self.cache[domain][record_type]  # Elimina la entrada expirada de la caché
+                print(f"Cache expired for: {domain} [{record_type}]")
+                if not self.cache[domain]:  # Si no hay más registros para este dominio, lo eliminamos completamente
+                    del self.cache[domain]
+        return None
+
+    def update_cache(self, domain, value, ttl, record_type='A'):
+        expiration_time = time.time() + ttl
+        if domain not in self.cache:
+            self.cache[domain] = {}
+        self.cache[domain][record_type] = {'value': value, 'expiration_time': expiration_time}
+        print(f"Cache updated: {domain} [{record_type}] -> {value} (TTL: {ttl}s)")
+
+    def clean_expired_entries(self):
+        current_time = time.time()
+        expired_domains = [domain for domain, records in self.cache.items() for record_type, record in records.items() if record['expiration_time'] <= current_time]
+        for domain, records in self.cache.items():
+            self.cache[domain] = {record_type: record for record_type, record in records.items() if record['expiration_time'] > current_time}
+            if not self.cache[domain]:
+                del self.cache[domain]
+        print("Expired entries cleaned from cache.")
+
+def external_dns_query(domain, record_type='A'):
+    # Simulación de una consulta DNS externa más realista
+    # Aquí podrías implementar lógica para seleccionar respuestas basadas en el dominio y el tipo de registro
+    # En este ejemplo, simplemente generamos una IP aleatoria
+    return '.'.join(str(random.randint(0, 255)) for _ in range(4))
+
+def periodic_external_dns_query(cache, interval=60):
+    while True:
+        for domain, records in cache.cache.items():
+            for record_type in records:
+                external_result = external_dns_query(domain, record_type)
+                cache.update_cache(domain, external_result, 60, record_type)
+        time.sleep(interval)
+
+def demo():
+    cache = DNSCache()
+
+    # Ejemplo de uso
+    cache.update_cache("example.com", "93.184.216.34", 60)
+    cache.update_cache("example.com", "2606:2800:220:1:248:1893:25c8:1946", 60, 'AAAA')
+
+    # Consulta DNS
+    print("Consulta DNS para example.com (A):", cache.query_dns("example.com", 'A'))
+    print("Consulta DNS para example.com (AAAA):", cache.query_dns("example.com", 'AAAA'))
+
+    # Iniciar el hilo para las consultas externas periódicas
+    threading.Thread(target=periodic_external_dns_query, args=(cache,), daemon=True).start()
+
+    # Espera infinita para mantener el programa en ejecución
+    while True:
+        time.sleep(1)
+
+if __name__ == "__main__":
+    demo()
+
+````
