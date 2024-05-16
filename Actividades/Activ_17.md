@@ -81,8 +81,57 @@ Desarrolla una función que simule un servidor DNS que utiliza caché para almac
 Crea una función query_dns que consulte una caché antes de simular una consulta externa.
 Implementa una función update_cache para añadir o actualizar entradas en la caché, incluyendo manejo del TTL.
 Añade una función clean_expired_entries que limpie las entradas expiradas de la caché periódicamente.
+````python 
+import time
 
-´´´´
+class DNSCache:
+    def __init__(self):
+        self.cache = {}
 
-´´´´
+    def query_dns(self, domain):
+        if domain in self.cache:
+            record = self.cache[domain]
+            if record['expiration_time'] > time.time():
+                print(f"Cache hit: {domain} [A] -> {record['ip_address']}")
+                return record['ip_address']
+            else:
+                del self.cache[domain]  # Elimina la entrada expirada de la caché
+                print(f"Cache expired for: {domain} [A]")
+        return None
+
+    def update_cache(self, domain, ip_address, ttl):
+        expiration_time = time.time() + ttl
+        self.cache[domain] = {'ip_address': ip_address, 'expiration_time': expiration_time}
+        print(f"Cache updated: {domain} [A] -> {ip_address} (TTL: {ttl}s)")
+
+    def clean_expired_entries(self):
+        current_time = time.time()
+        expired_domains = [domain for domain, record in self.cache.items() if record['expiration_time'] <= current_time]
+        for domain in expired_domains:
+            del self.cache[domain]
+        print("Expired entries cleaned from cache.")
+
+def demo():
+    cache = DNSCache()
+
+    # Añadir entradas a la caché
+    cache.update_cache("example.com", "93.184.216.34", 10)  # TTL de 10 segundos
+    cache.update_cache("example.com", "93.184.216.34", 30)  # Actualiza TTL a 30 segundos
+
+    # Consulta DNS
+    print("Consulta DNS para example.com:", cache.query_dns("example.com"))  # Debería devolver la IP
+    print("Consulta DNS para example.com:", cache.query_dns("example.com"))  # Debería devolver la IP
+
+    # Esperar hasta que las entradas expiren
+    time.sleep(15)
+
+    # Consultar DNS después de la expiración del TTL
+    print("Consulta DNS para example.com después de TTL expirado:", cache.query_dns("example.com"))  # Debería devolver None
+
+    # Limpiar entradas expiradas
+    cache.clean_expired_entries()
+
+if __name__ == "__main__":
+    demo()
+````
 
