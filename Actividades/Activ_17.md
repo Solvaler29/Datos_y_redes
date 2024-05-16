@@ -6,12 +6,102 @@ Desarrolla una función que simule el comando traceroute, mostrando una ruta fic
 Simula el funcionamiento del comando traceroute utilizando estructuras de datos y funciones puras para calcular y mostrar la ruta y los tiempos de transmisión.
 // Mas tarde lo hago 
 
+````python
+import random
+
+def create_network(nodes):
+    network = {}
+    for node in nodes:
+        network[node] = {}
+    return network
+
+def add_connection(network, node1, node2, latency):
+    network[node1][node2] = latency
+    network[node2][node1] = latency
+
+def simulate_traceroute(network, start_node, end_node, max_hops=30):
+    current_node = start_node
+    hop_count = 0
+
+    print(f"Traceroute from {start_node} to {end_node}:")
+
+    while current_node != end_node and hop_count < max_hops:
+        if not network[current_node]:  # Si el nodo actual no tiene conexiones
+            print(f"No more connections available at {current_node}. Traceroute interrupted.")
+            return
+
+        next_node = random.choice(list(network[current_node].keys()))
+        latency = network[current_node][next_node]
+
+        print(f"Hop {hop_count+1}: {current_node} ({latency} ms)")
+
+        current_node = next_node
+        hop_count += 1
+
+    if current_node == end_node:
+        print(f"Destination reached: {end_node}")
+    else:
+        print("Max hop count reached, destination not reached.")
+
+def demo():
+    nodes = ['A', 'B', 'C', 'D', 'E']
+
+    # Crear la red y establecer conexiones
+    network = create_network(nodes)
+    add_connection(network, 'A', 'B', 10)
+    add_connection(network, 'B', 'C', 20)
+    add_connection(network, 'B', 'D', 15)
+    add_connection(network, 'C', 'D', 10)
+    add_connection(network, 'D', 'E', 5)
+
+    # Simular traceroute
+    simulate_traceroute(network, 'A', 'E')
+
+if __name__ == "__main__":
+    demo()
+```` 
+
 ## Problema 20: Análisis de log de red
 Conceptos: Log file, Filter, Event Viewer
 Implementa una función que analice un archivo de log simulado de eventos de red, filtrando y mostrando eventos basados en criterios específicos como errores, alertas de seguridad, etc.
 Crea una función que procese y filtre datos de manera eficiente para simular el análisis de un archivo de log de eventos de red.
 // Mas tarde lo hago 
+````python 
+from google.colab import files
+import re
 
+def filter_network_log(log_content, criteria):
+    for line in log_content.split('\n'):
+        timestamp, event_type, details = line.split("|")
+        if criteria(event_type, details):
+            print(f"[{timestamp}] {event_type}: {details}")
+
+def is_error(event_type, details):
+    return "ERROR" in event_type
+
+def is_security_alert(event_type, details):
+    return "SECURITY ALERT" in event_type
+
+def main():
+    # Cargar el archivo de registro
+    uploaded = files.upload()
+
+    # Leer el contenido del archivo de registro
+    log_content = ""
+    for filename in uploaded.keys():
+        log_content = uploaded[filename].decode('utf-8')
+
+    # Filtrar y mostrar eventos de error
+    print("Eventos de Error:")
+    filter_network_log(log_content, is_error)
+
+    # Filtrar y mostrar alertas de seguridad
+    print("\nAlertas de Seguridad:")
+    filter_network_log(log_content, is_security_alert)
+
+if __name__ == "__main__":
+    main()
+````
 
 ## Problema 11: Simulación de Flooding en Ethernet
 Conceptos: Flooding, MAC Table, Ethernet
